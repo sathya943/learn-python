@@ -1,5 +1,5 @@
-def hello_world(name : str) -> str:
-  return f'Hello {name}!Welcome to python world'
+def hello_world(name : str, age : int) -> str:
+  return f'Hello {name},you are {age} years old!'
 
 ## Driver Code
-print(hello_world('Satya'))
+print(hello_world('Satya', 22))
