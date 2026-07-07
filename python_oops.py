@@ -95,4 +95,45 @@ class BankAccount:
     
     def __str__(self):
         return f"{self.__class__.__name__}({self.account_number}, Balance: ${self.balance:.2f})"
+
+
+# INHERITENCE & POLYMORPHISM
+class SavingsAccount(BankAccount):
+    """Inherited class with additional features (interest)."""
     
+    def __init__(self, account_number: str, customer: Customer, 
+                 initial_balance: float = 0.0, interest_rate: float = 0.03):
+        super().__init__(account_number, customer, initial_balance)
+        self.interest_rate = interest_rate
+
+    @log_action("Apply Interest")
+    def apply_interest(self) -> float:
+        """Polymorphic behavior specific to SavingsAccount."""
+        interest = self.balance * self.interest_rate
+        self.deposit(interest, description="Monthly Interest")
+        return interest
+
+
+class CheckingAccount(BankAccount):
+    """Another derived class with overdraft protection (limited)."""
+    
+    def __init__(self, account_number: str, customer: Customer, 
+                 initial_balance: float = 0.0, overdraft_limit: float = 500.0):
+        super().__init__(account_number, customer, initial_balance)
+        self.overdraft_limit = overdraft_limit
+
+    @log_action("Withdrawal (Checking)")
+    def withdraw(self, amount: float, description: str = "Withdrawal") -> bool:
+        """Overridden method demonstrating polymorphism."""
+        if amount <= 0:
+            raise ValueError("Withdrawal amount must be positive")
+        
+        if amount > (self.balance + self.overdraft_limit):
+            raise ValueError("Exceeds overdraft limit")
+        
+        self._balance -= amount
+        self._transactions.append(
+            Transaction(amount, "withdrawal", description=description)
+        )
+        return True
+
