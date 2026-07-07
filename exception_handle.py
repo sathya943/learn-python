@@ -5,8 +5,8 @@
 def divide(a, b):
     try:
         return a / b
-    except ZeroDivisionError:
-        return "Cannot divide by zero"
+    except Exception as e:
+        return e
     finally:
         print("Always executed!")
         return a / b
