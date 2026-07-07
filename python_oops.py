@@ -8,8 +8,23 @@ from typing import List, Optional
 def log_action(action_name: Optional[str] = None):
     """Decorator to log method calls with timestamps and results.
     Demonstrates a parameterized decorator."""
-    pass
-
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            timestamp = datetime.now()
+            action = action_name or func.__name__
+            print(f"[{timestamp}] Starting {action} for {self.__class__.__name__}"
+                  f"(Account: {getattr(self, 'account_number', 'N/A')})")
+            
+            try:
+                result = func(self, *args, **kwargs)
+                print(f"[{datetime.now()}] Completed {action} successfully. Result: {result}")
+                return result
+            except Exception as e:
+                print(f"[{datetime.now()}] ERROR in {action}: {e}")
+                raise
+        return wrapper
+    return decorator
 
 # DataClass
 @dataclass
