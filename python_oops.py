@@ -1,43 +1,83 @@
-# Learn Python Object Oriented Programming Concepts Here.
-
-class Person:
-    def __init__(self, name, age):
-        self.name = name
-        self.age = age
-    
-    def display(self):
-        print(f"Name: {self.name}, Age: {self.age}")
+from dataclasses import dataclass, field
+from datetime import datetime
+from functools import wraps
+from typing import List, Optional
 
 
-class Calculator:
-    def __init__(self, num1, num2):
-        self.num1 = num1
-        self.num2 = num2
-    
-    def add(self):
-        return self.num1 + self.num2
-    
-    def subtract(self):
-        return self.num1 - self.num2
-    
-    def multiply(self):
-        return self.num1 * self.num2
-    
-    def divide(self):
-        try:
-            return self.num1 / self.num2
-        except ZeroDivisionError:
-            return "Cannot divide by zero"
-    
-    def display(self):
-        print(f"Addition: {self.add()}")
-        print(f"Subtraction: {self.subtract()}")
-        print(f"Multiplication: {self.multiply()}")
-        print(f"Division: {self.divide()}")
+# Deorator
+def log_action(action_name: Optional[str] = None):
+    """Decorator to log method calls with timestamps and results.
+    Demonstrates a parameterized decorator."""
+    pass
 
-# Driver Code
-# person1 = Person("Satya", 22)
-# person1.display()
 
-calculator1 = Calculator(10, 5)
-calculator1.display()
+# DataClass
+@dataclass
+class Transaction:
+    """Immutable data container for financial transactions."""
+    amount: float
+    transaction_type: str # 'deposit', 'withdrawl', 'interest'
+    timestamp: datetime = field(default_factory=datetime.now)
+    description: str = ""
+
+@dataclass
+class Customer:
+    """Customer data using dataclass for automatic __init__, __repr__, etc."""
+    customer_id: str
+    name: str
+    email: str
+    phone: str
+    accounts: List['BankAccount'] = field(default_factory=list)
+    
+    def add_account(self, account: 'BankAccount'):
+        self.accounts.append(account)
+        print(f"Added {account.__class__.__name__} to customer {self.name}")
+
+# OOP - Base Class
+
+class BankAccount:
+    """Base Class demonstrating encapsulation and basic OOP principles."""
+    
+    def __init__(self, account_number: str, customer: Customer, initial_balance: float = 0.0):
+        self.account_number = account_number
+        self.customer = customer
+        self._balance: float = initial_balance # protected attribute
+        self._transactions: List[Transaction] = []
+        self.customer.add_account(self)
+    
+    @property
+    def balance(self):
+        """Encapsulation: controlled access to balance."""
+        return self._balance
+    
+    @log_action("Deposit")
+    def deposit(self, amount: float, description: str = "Deposit") -> bool:
+        """Deposit money into the account."""
+        if amount <= 0:
+            raise ValueError("Deposit amount must be positive.")
+        self._balance += amount
+        self._transactions.append(
+            Transaction(amount, "deposit", description=description)
+        )
+        return True
+    
+    @log_action("Withdrawal")
+    def withdraw(self, amount: float, description: str = "Withdrawl") -> bool:
+        """Withdraw money with validation."""
+        if amount <= 0:
+            raise ValueError("Withdrawl amount must be positive.")
+        if amount > self._balance:
+            raise ValueError("Insufficient funds.")
+        self._balance -= amount
+        self._transactions.append(
+            Transaction(amount, "withdrawal", description=description)
+        )
+        return True
+    
+    def get_transaction_history(self) -> List[Transaction]:
+        """Return copy of transaction history (encapsulation)."""
+        return self._transactions
+    
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.account_number}, Balance: ${self.balance:.2f})"
+    
