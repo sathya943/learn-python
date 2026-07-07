@@ -137,3 +137,49 @@ class CheckingAccount(BankAccount):
         )
         return True
 
+# DRIVER CODE FOR DEMO
+def main():
+    print("=== Bank System Demo (OOP + Dataclass + Decorators) ===\n")
+    
+    # Create customer (dataclass)
+    customer = Customer(
+        customer_id="CUST001",
+        name="Alice Johnson",
+        email="alice@example.com",
+        phone="555-1234"
+    )
+    
+    # Create accounts
+    savings = SavingsAccount("SAV-001", customer, 1000.0)
+    checking = CheckingAccount("CHK-002", customer, 500.0)
+    
+    print("\nInitial balances:")
+    print(savings)
+    print(checking)
+    
+    # Perform operations (decorators will log automatically)
+    savings.deposit(500, "Salary deposit")
+    savings.apply_interest()
+    
+    try:
+        checking.withdraw(700, "Rent payment")  # Uses overdraft
+    except ValueError as e:
+        print(f"Transaction failed: {e}")
+    
+    checking.withdraw(200)
+    
+    # Show history
+    print("\n=== Transaction History for Savings ===")
+    for t in savings.get_transaction_history():
+        print(f"{t.timestamp.strftime('%H:%M:%S')} | {t.transaction_type.upper():10} | "
+              f"${t.amount:8.2f} | {t.description}")
+    
+    print("\nFinal balances:")
+    print(savings)
+    print(checking)
+    
+    # Demonstrate customer accounts
+    print(f"\nCustomer {customer.name} has {len(customer.accounts)} accounts.")
+
+if __name__ == "__main__":
+    main()
